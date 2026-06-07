@@ -1,5 +1,5 @@
 import type { User } from "../types/User";
-
+import React from "react";
 import {
   FaEnvelope,
   FaPhone,
@@ -11,11 +11,15 @@ import {
 interface UserCardProps {
   user: User;
   onClick: () => void;
+  isFavorite: boolean;
+  onFavorite: () => void;
 }
 
 function UserCard({
   user,
   onClick,
+  isFavorite,
+  onFavorite,
 }: UserCardProps) {
   return (
     <div
@@ -35,8 +39,17 @@ function UserCard({
         cursor-pointer
       "
     >
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onFavorite();
+        }}
+        className="text-2xl"
+      >
+        {isFavorite ? "❤️" : "🤍"}
+      </button>
       {/* Header */}
-<div className="flex justify-between items-start mb-4 bg-slate-800/40 p-3 rounded-xl">
+      <div className="flex justify-between items-start mb-4 bg-slate-800/40 p-3 rounded-xl">
         <div className="flex items-center gap-4">
           <img
             src={`https://ui-avatars.com/api/?name=${user.name}&background=2563eb&color=fff&size=128`}
@@ -73,14 +86,12 @@ function UserCard({
         >
           View Profile
         </button>
-
       </div>
 
       <hr className="border-slate-800 my-4" />
 
       {/* Details */}
       <div className="grid grid-cols-2 gap-3 text-sm text-slate-300">
-
         <p>
           <FaEnvelope className="inline mr-2 text-cyan-400" />
           {user.email}
@@ -118,10 +129,9 @@ function UserCard({
             {user.company.name}
           </span>
         </div>
-
       </div>
     </div>
   );
 }
 
-export default UserCard;
+export default React.memo(UserCard);

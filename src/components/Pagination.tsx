@@ -10,11 +10,18 @@ function Pagination({
   onPageChange,
 }: PaginationProps) {
   return (
-    <div className="flex justify-center items-center gap-4 mt-6 text-white">
+    <div className="flex justify-center items-center gap-4 mt-6">
       <button
         disabled={currentPage === 1}
         onClick={() => onPageChange(currentPage - 1)}
-        className="px-4 py-2 border border-cyan-500 rounded text-white"
+        className="
+          px-4 py-2
+          bg-cyan-600
+          text-white
+          rounded-lg
+          disabled:opacity-50
+          disabled:cursor-not-allowed
+        "
       >
         Previous
       </button>
@@ -26,7 +33,14 @@ function Pagination({
       <button
         disabled={currentPage === totalPages}
         onClick={() => onPageChange(currentPage + 1)}
-        className="px-4 py-2 border border-cyan-500 rounded text-white"
+        className="
+          px-4 py-2
+          bg-cyan-600
+          text-white
+          rounded-lg
+          disabled:opacity-50
+          disabled:cursor-not-allowed
+        "
       >
         Next
       </button>
