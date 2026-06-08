@@ -26,14 +26,19 @@ import { paginateUsers } from "../utils/paginateUsers";
 
 function UserListPage() {
   const navigate = useNavigate();
+
+  // Data and UI state
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [darkMode, setDarkMode] = useState(true);
+
+  // Favorites
   const [favorites, setFavorites] = useState<number[]>(() => {
     const saved = localStorage.getItem("favorites");
     return saved ? JSON.parse(saved) : [];
   });
+  const [showFavorites, setShowFavorites] = useState(false);
 
   // Filters and Sorting State
   const [search, setSearch] = useState("");
@@ -47,21 +52,16 @@ function UserListPage() {
 
   const debouncedSearch = useDebounce(search, 400);
 
-  const toggleFavorite = useCallback(
-    (id: number) => {
-      const updated = favorites.includes(id)
-        ? favorites.filter((fav) => fav !== id)
-        : [...favorites, id];
-
-      setFavorites(updated);
-
-      localStorage.setItem(
-        "favorites",
-        JSON.stringify(updated)
-      );
-    },
-    [favorites]
-  );
+  // Toggle favorite using functional update to avoid stale closures
+  const toggleFavorite = useCallback((id: number) => {
+    setFavorites((prev) => {
+      const updated = prev.includes(id)
+        ? prev.filter((fav) => fav !== id)
+        : [...prev, id];
+      localStorage.setItem("favorites", JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
 
   // Fetch Users
   useEffect(() => {
@@ -69,8 +69,8 @@ function UserListPage() {
       try {
         const data = await userService.getUsers();
         setUsers(data);
-      } catch (error) {
-        console.error(error);
+      } catch (err) {
+        console.error(err);
         setError("Failed to load users. Please try again.");
       } finally {
         setLoading(false);
@@ -93,17 +93,14 @@ function UserListPage() {
 
   // Apply Search, Company Filter, and City Filter
   const filteredUsers = useMemo(() => {
-    // Start with the original text search filter
     let processedUsers = filterUsers(users, debouncedSearch);
 
-    // Apply Company Filter
     if (selectedCompany !== "All") {
       processedUsers = processedUsers.filter(
         (user) => user.company.name === selectedCompany
       );
     }
 
-    // Apply City Filter
     if (selectedCity !== "All") {
       processedUsers = processedUsers.filter(
         (user) => user.address.city === selectedCity
@@ -113,30 +110,27 @@ function UserListPage() {
     return processedUsers;
   }, [users, debouncedSearch, selectedCompany, selectedCity]);
 
-  // Apply Sorting
+  // Sort after filtering
   const sortedUsers = useMemo(() => {
     return sortUsers(filteredUsers, sortOption);
   }, [filteredUsers, sortOption]);
 
-  // Apply Pagination
-  const paginatedUsers = useMemo(() => {
-    return paginateUsers(sortedUsers, currentPage, usersPerPage);
-  }, [sortedUsers, currentPage]);
+  // Favorites view based on filtered (and optionally sorted) users
+  const favoriteUsers = useMemo(() => {
+    return sortedUsers.filter((user) => favorites.includes(user.id));
+  }, [sortedUsers, favorites]);
 
-  const totalPages = Math.max(
-    1,
-    Math.ceil(sortedUsers.length / usersPerPage)
-  );
+  // Apply Pagination (paginate either favorites or full list depending on toggle)
+  const listForDisplay = showFavorites ? favoriteUsers : sortedUsers;
+
+  const paginatedUsers = useMemo(() => {
+    return paginateUsers(listForDisplay, currentPage, usersPerPage);
+  }, [listForDisplay, currentPage, usersPerPage]);
+
+  const totalPages = Math.max(1, Math.ceil(listForDisplay.length / usersPerPage));
 
   const exportToCSV = () => {
-    const headers = [
-      "Name",
-      "Username",
-      "Email",
-      "Phone",
-      "Company",
-      "City",
-    ];
+    const headers = ["Name", "Username", "Email", "Phone", "Company", "City"];
 
     const rows = sortedUsers.map((user) => [
       user.name,
@@ -147,10 +141,7 @@ function UserListPage() {
       user.address.city,
     ]);
 
-    const csvContent = [
-      headers.join(","),
-      ...rows.map((row) => row.join(",")),
-    ].join("\n");
+    const csvContent = [headers.join(","), ...rows.map((row) => row.join(","))].join("\n");
 
     const blob = new Blob([csvContent], {
       type: "text/csv;charset=utf-8;",
@@ -169,15 +160,12 @@ function UserListPage() {
   // Reset to page 1 whenever structural filters or search changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [debouncedSearch, selectedCompany, selectedCity, sortOption]);
+  }, [debouncedSearch, selectedCompany, selectedCity, sortOption, showFavorites]);
 
   if (error) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
-        <h2 className="text-2xl font-bold text-red-500 mb-4">
-          {error}
-        </h2>
-
+        <h2 className="text-2xl font-bold text-red-500 mb-4">{error}</h2>
         <button
           onClick={() => window.location.reload()}
           className="px-4 py-2 bg-cyan-600 text-white rounded-lg"
@@ -200,18 +188,24 @@ function UserListPage() {
           : "bg-sky-50"
       }`}
     >
-      <div className="flex justify-end gap-3 mb-4">         
+      <div className="flex justify-end gap-3 mb-4">
         <button
           onClick={() => setDarkMode(!darkMode)}
           className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 transition-colors text-white font-semibold rounded-lg shadow-md"
         >
-          {darkMode ? "☀ Light Mode" : "🌙 Dark Mode"}
+          {darkMode ? "☀" : "🌙"}
         </button>
         <button
           onClick={exportToCSV}
           className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg shadow-md"
         >
           Export CSV
+        </button>
+        <button
+          onClick={() => setShowFavorites((v) => !v)}
+          className="px-4 py-2 bg-yellow-500 text-black rounded-lg"
+        >
+          ⭐ Favorites
         </button>
       </div>
 
@@ -306,7 +300,7 @@ function UserListPage() {
         </div>
       </div>
 
-      {paginatedUsers.length === 0 ? (
+      {listForDisplay.length === 0 ? (
         <div className="text-center py-16">
           <h2
             className={`text-3xl font-bold ${
@@ -321,16 +315,24 @@ function UserListPage() {
         </div>
       ) : (
         <>
+          {showFavorites && favoriteUsers.length > 0 && (
+            <>
+              <h2 className="text-2xl font-bold text-yellow-400 mb-4 mt-6">
+                ⭐ Favorite Users
+              </h2>
+            </>
+          )}
+
           <div className="flex justify-between items-center mb-5 px-2">
             <h2
               className={`text-lg font-semibold ${
                 darkMode ? "text-white" : "text-slate-800"
               }`}
             >
-              Users Directory
+              {showFavorites ? "⭐ Favorite Users" : "Users Directory"}
             </h2>
             <span className="bg-cyan-500/10 text-cyan-500 font-medium px-4 py-1.5 rounded-full text-sm border border-cyan-500/20">
-              {filteredUsers.length} Matching Users
+              {listForDisplay.length} Matching Users
             </span>
           </div>
 
