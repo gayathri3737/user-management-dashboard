@@ -191,30 +191,30 @@ function UserListPage() {
       <div className="flex justify-end gap-3 mb-4">
         <button
           onClick={() => setDarkMode(!darkMode)}
-          className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 transition-colors text-white font-semibold rounded-lg shadow-md"
+          className="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-cyan-500 text-cyan-300 font-semibold rounded-lg shadow-md transition"
         >
           {darkMode ? "☀" : "🌙"}
         </button>
-        <button
-          onClick={exportToCSV}
-          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg shadow-md"
-        >
-          Export CSV
-        </button>
+       <button
+  onClick={exportToCSV}
+  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-cyan-500 text-cyan-300 rounded-lg font-semibold shadow-md transition"
+>
+  📥
+</button>
         <button
           onClick={() => setShowFavorites((v) => !v)}
-          className="px-4 py-2 bg-yellow-500 text-black rounded-lg"
+          className="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-cyan-500 text-cyan-300 rounded-lg font-semibold shadow-md transition"
         >
-          ⭐ Favorites
+          ⭐ 
         </button>
       </div>
 
       <div className="bg-gradient-to-r from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-5 text-center shadow-xl">
-        <h1 className="text-6xl font-extrabold bg-gradient-to-r from-cyan-400 via-blue-400 to-violet-400 bg-clip-text text-transparent pb-2">
-          User Management Dashboard
+        <h1 className="text-6xl font-extrabold bg-gradient-to-r from-cyan-400 via-BLACK-599 bg-clip-text text-transparent pb-2">
+          USER MANAGEMENT DASHBOARD
         </h1>
 
-        <p className="text-slate-300 font-semibold mt-2">
+        <p className="text-slate-300 font-arial mt-2">
           Search, filter and manage users with ease.
         </p>
 
@@ -318,7 +318,7 @@ function UserListPage() {
           {showFavorites && favoriteUsers.length > 0 && (
             <>
               <h2 className="text-2xl font-bold text-yellow-400 mb-4 mt-6">
-                ⭐ Favorite Users
+                
               </h2>
             </>
           )}

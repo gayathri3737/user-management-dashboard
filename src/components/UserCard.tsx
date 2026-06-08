@@ -24,107 +24,98 @@ function UserCard({
   return (
     <div
       onClick={onClick}
-      className="
-        bg-slate-900
-        border
-        border-slate-800
+      className={`
+        bg-gradient-to-br from-slate-900 to-slate-800
+        border border-slate-700
         rounded-2xl
         p-5
         shadow-lg
-       hover:border-blue-500
-       hover:shadow-xl
+        hover:border-cyan-500
+        hover:shadow-xl
         hover:-translate-y-1
         transition-all
         duration-300
         cursor-pointer
-      "
+      `}
     >
       <button
         onClick={(e) => {
           e.stopPropagation();
           onFavorite();
         }}
-        className="text-2xl"
+        className="text-2xl float-right transition-transform hover:scale-110"
       >
         {isFavorite ? "❤️" : "🤍"}
       </button>
+
       {/* Header */}
-      <div className="flex justify-between items-start mb-4 bg-slate-800/40 p-3 rounded-xl">
+      <div className="flex justify-between items-start mb-4 bg-slate-800/60 backdrop-blur-sm p-3 rounded-xl border border-slate-700">
         <div className="flex items-center gap-4">
           <img
-            src={`https://ui-avatars.com/api/?name=${user.name}&background=2563eb&color=fff&size=128`}
+            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=2563eb&color=fff&size=128`}
             alt={user.name}
-            className="w-20 h-20 rounded-full shadow-lg"
+            className="w-20 h-20 rounded-full shadow-lg border-2 border-cyan-500/30"
           />
 
           <div>
             <h2 className="text-2xl font-thin text-white">
               {user.name}
             </h2>
-
-            <p className="text-cyan-300">
+            <p className="text-cyan-400 font-semibold">
               @{user.username}
             </p>
           </div>
         </div>
 
         <button
-          className="
-            px-4
-            py-2
-            text-sm
-            rounded-lg
-            bg-slate-800
-            border
-            border-cyan-500
-            text-cyan-400
+          className={`
+            px-4 py-2 text-sm rounded-lg
+            bg-slate-800/80 backdrop-blur-sm
+            border border-cyan-500
+            text-cyan-400 font-semibold
             hover:bg-cyan-500
             hover:text-black
-            transition-all
-            duration-300
-          "
+            transition-all duration-300
+            shadow-md
+          `}
         >
           View Profile
         </button>
       </div>
 
-      <hr className="border-slate-800 my-4" />
+      <hr className="border-slate-700 my-4" />
 
       {/* Details */}
-      <div className="grid grid-cols-2 gap-3 text-sm text-slate-300">
-        <p>
-          <FaEnvelope className="inline mr-2 text-cyan-400" />
-          {user.email}
+      <div className="grid grid-cols-2 gap-3 text-sm">
+        <p className="text-slate-300 flex items-center gap-2">
+          <FaEnvelope className="text-cyan-400" />
+          <span className="truncate">{user.email}</span>
         </p>
 
-        <p>
-          <FaPhone className="inline mr-2 text-cyan-400" />
-          {user.phone}
+        <p className="text-slate-300 flex items-center gap-2">
+          <FaPhone className="text-cyan-400" />
+          <span>{user.phone}</span>
         </p>
 
-        <p>
-          <FaGlobe className="inline mr-2 text-cyan-400" />
-          {user.website}
+        <p className="text-slate-300 flex items-center gap-2">
+          <FaGlobe className="text-cyan-400" />
+          <span className="truncate">{user.website}</span>
         </p>
 
-        <p>
-          <FaMapMarkerAlt className="inline mr-2 text-cyan-400" />
-          {user.address.city}
+        <p className="text-slate-300 flex items-center gap-2">
+          <FaMapMarkerAlt className="text-cyan-400" />
+          <span>{user.address.city}</span>
         </p>
 
-        <div className="col-span-2">
-          <FaBuilding className="inline mr-2 text-cyan-400" />
-
+        <div className="col-span-2 flex items-center gap-2">
+          <FaBuilding className="text-cyan-400" />
           <span
-            className="
-              inline-block
-              bg-cyan-500/10
-              text-cyan-300
-              px-3
-              py-1
-              rounded-full
-              text-xs
-            "
+            className={`
+              inline-block bg-cyan-500/10
+              text-cyan-300 font-semibold
+              px-3 py-1 rounded-full text-xs
+              border border-cyan-500/20
+            `}
           >
             {user.company.name}
           </span>
